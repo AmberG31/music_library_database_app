@@ -1,4 +1,4 @@
-# POST /albums and POST /artists Route Design Recipe
+# POST /albums Route Design Recipe
 
 _Copy this design recipe template to test-drive a Sinatra route._
 
@@ -6,28 +6,9 @@ _Copy this design recipe template to test-drive a Sinatra route._
 
 You'll need to include:
   * the HTTP method
-   POST
   * the path
-   /albums
   * any query parameters (passed in the URL)
-   https://localhost:9292/albums
   * or body parameters (passed in the request body)
-   title = 'Voyage'
-   release_year = 2022
-   artist_id = 2
-
-   # Request:
-GET /artists
-
-# Expected response (200 OK)
-Pixies, ABBA, Taylor Swift, Nina Simone
-
-# Request 2:
-POST /artists
-
-# Expected response (200 OK)
-(No content)
-
 
 ## 2. Design the Response
 
@@ -46,8 +27,8 @@ _Replace the below with your own design. Think of all the different possible res
 <html>
   <head></head>
   <body>
-    <h1>200 OK</h1>
-    <div>Pixies, ABBA, Taylor Swift, Nina Simone</div>
+    <h1>Album title</h1>
+    <div>Album content</div>
   </body>
 </html>
 ```
@@ -56,16 +37,14 @@ _Replace the below with your own design. Think of all the different possible res
 <!-- EXAMPLE -->
 <!-- Response when the post is not found: 404 Not Found -->
 
-REQUEST 2 
 <html>
   <head></head>
   <body>
-    <h1>200 OK</h1>
-    <div>Artist has been added</div>
+    <h1>Sorry!</h1>
+    <div>We couldn't find this album. Have a look at the homepage?</div>
   </body>
 </html>
 ```
-
 
 ## 3. Write Examples
 
@@ -73,25 +52,16 @@ _Replace these with your own design._
 
 ```
 # Request:
+POST /albums
 
-GET /artists
+# With body parameters:
+title=Voyage
+release_year=2022
+artist_id=2
 
-# Expected response:
-
-Response for 200 OK
-Pixies, ABBA, Taylor Swift, Nina Simone
+# Expected response (200 OK)
+(No content)
 ```
-```
-# Request 2:
-
-POST /artists
-
-# Expected response:
-
-Response for 200 OK
-Artist has been added
-```
-
 
 ## 4. Encode as Tests Examples
 
@@ -106,29 +76,44 @@ describe Application do
 
   let(:app) { Application.new }
 
-  context "GET /artists" do
+  context "GET /" do
     it 'returns 200 OK' do
       # Assuming the post with id 1 exists.
-      response = get('/artists')
+      response = get('/posts?id=1')
 
       expect(response.status).to eq(200)
-      expect(response.body).to eq('Pixies, ABBA, Taylor Swift, Nina Simone')
+      # expect(response.body).to eq(expected_response)
     end
 
+    it 'returns 404 Not Found' do
+      response = get('/posts?id=276278')
+
+      expect(response.status).to eq(404)
+      # expect(response.body).to eq(expected_response)
+    end
   end
 
-  context "POST /artists" do
+  context "POST /Albums" do
     it 'returns 200 OK' do
-      # Assuming the post with id 1 exists.
-      response = post('/artists', name: 'Wild nothing', genre: 'Indie')
+      # Assuming the album with id 1 exists.
+      response = get('/albums?id=1')
+      expect(response.status).to eq(200)
+    end
+
+    it 'returns 404 Not Found' do
+      response = get('/albums?id=276278')
+      expect(response.status).to eq(404)
+    end
+
+    it 'creates new album (voyage/2022/2)' do
+      response = post(
+        '/albums',
+        title: 'Voyage',
+        release_year: '2022',
+        artist_id: '2')
 
       expect(response.status).to eq(200)
-      expect(response.body).to eq('Artist has been added')
-
-      response_2 = get('/artists')
-
-      expect(response_2.status).to eq(200)
-      expect(response_2.body).to eq('Pixies, ABBA, Taylor Swift, Nina Simone, Wild nothing')
+      expect(response.body).to eq('')
     end
   end
 end
@@ -137,5 +122,3 @@ end
 ## 5. Implement the Route
 
 Write the route and web server code to implement the route behaviour.
-
-<!-- BEGIN GENERATED SECTION DO NOT EDIT -->
