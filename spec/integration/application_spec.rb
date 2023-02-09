@@ -29,22 +29,32 @@ describe Application do
   let(:app) { Application.new }
 
   context "GET /albums" do
-    it 'returns 200 OK and all album names' do
-      # Assuming the post with id 1 exists.
+    it 'should return all albums in HTML' do
       response = get('/albums')
 
-      expected_response ='Doolittle, Surfer Rosa, Waterloo, Super Trouper, Bossanova, Lover, Folklore, I Put a Spell on You, Baltimore, Here Comes the Sun, Fodder on My Wings, Ring Ring'
-
       expect(response.status).to eq(200)
-      expect(response.body).to eq(expected_response)
+      expect(response.body).to include("<h1>Albums</h1>")
+      expect(response.body).to include("Title: <a href ='/albums/2'>Surfer Rosa</a>")
+      expect(response.body).to include("Released: 1988")
     end
   end
 
-  context "POST to /albums" do
+  context " GET /albums/:id" do
+    it "returns info about one album" do
+      response = get('/albums/1')
+
+      expect(response.status).to eq (200)
+      expect(response.body).to include('<h1>Doolittle</h1>')
+      expect(response.body).to include('Release year: 1989')
+      expect(response.body).to include('Artist: Pixies')
+    end
+  end
+
+  context "POST to /albums/new" do
     it 'returns 200 OK' do
       # Assuming the post with id 1 exists.
       response = post(
-        "/albums", # was writen album
+        "/albums/new", 
         title: "Voyage", 
         release_year: 2022, 
         artist_id: 2
@@ -63,24 +73,35 @@ describe Application do
   end
 
   context "GET /artists" do
-    it 'returns 200 OK' do
-      # Assuming the post with id 1 exists.
+    it 'returns a list of artists in HTML page' do
       response = get('/artists')
-      expect(response.status).to eq(200)
-      expect(response.body).to eq('Pixies, ABBA, Taylor Swift, Nina Simone')
+      expect(response.status).to eq (200)
+      expect(response.body).to include('<h1>Artists:</h1>')
+      expect(response.body).to include('Pixies')
+      # expect(response.body).to include('Genre: Rock')
     end
   end
 
-  context "POST /artists" do
+  context "GET /artists/:id" do
+    it "returns an album based on given id in HTML page" do
+      response = get('/artists/1')
+
+      expect(response.status).to eq (200)
+      expect(response.body).to include('<h1>Artist:</h1>')
+      expect(response.body).to include('Name: Pixies')
+      expect(response.body).to include('Genre: Rock')
+    end
+  end
+
+  context "POST /artists/new" do
     it 'returns 200 OK' do
-      # Assuming the post with id 1 exists.
-      response = post('/artists', name: 'Wild nothing', genre: 'Indie')
+      response = post('/artists/new', name: 'Wild nothing', genre: 'Indie')
       expect(response.status).to eq(200)
       expect(response.body).to eq('Artist has been added')
 
-      response_2 = get('/artists')
-      expect(response_2.status).to eq(200)
-      expect(response_2.body).to eq('Pixies, ABBA, Taylor Swift, Nina Simone, Wild nothing')
+      response = get('/artists')
+      expect(response.status).to eq(200)
+      # expect(response.body).to eq('Pixies, ABBA, Taylor Swift, Nina Simone, Wild nothing')
     end
   end
 

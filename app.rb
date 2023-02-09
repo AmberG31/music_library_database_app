@@ -15,12 +15,13 @@ class Application < Sinatra::Base
 
   get '/albums' do
     repo = AlbumRepository.new
-    albums = repo.all
+    @albums = repo.all
 
-    response = albums.map{ |album| album.title }.join(", ")
+    # response = albums.map{ |album| album.title }.join(", ")
+    return erb(:albums)
   end
 
-  post '/albums' do # /:title/:release_year/:artist_id -> it said album
+  post '/albums/new' do # /:title/:release_year/:artist_id -> it said album
     new_album = Album.new
     new_album.title = params[:title]
     new_album.release_year = params[:release_year]
@@ -33,17 +34,36 @@ class Application < Sinatra::Base
     return body
   end
 
-  get '/artists' do
-    repo = ArtistRepository.new
-    artists = repo.all
-    names = []
-    artists.each do |artist|
-      names << artist.name
-    end
-    return names.join(', ')
+  get '/albums/:id' do
+    repo = AlbumRepository.new
+    artist_repo = ArtistRepository.new
+
+    @album = repo.find(params[:id])
+    @artist = artist_repo.find(@album.artist_id)
+
+    return erb(:album)
   end
 
-  post '/artists' do
+  get '/artists' do
+    repo = ArtistRepository.new
+    @artists = repo.all
+    return erb(:artists)
+
+    # names = []
+    # artists.each do |artist|
+    #   names << artist.name
+    # end
+    # return names.join(', ')
+  end
+
+  get '/artists/:id' do
+    repo = ArtistRepository.new
+    @artist = repo.find(params[:id])
+
+    return erb(:artist)
+  end
+
+  post '/artists/new' do
     repo = ArtistRepository.new
     artist = Artist.new
     artist.name = params[:name]
